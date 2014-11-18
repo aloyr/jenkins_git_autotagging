@@ -1,0 +1,21 @@
+#!/bin/bash
+cd $WORKSPACE
+COMMIT=`git log -n 1 --oneline --no-color --format=format:'%H'`
+LASTTAG=`git log -n 1 --oneline --no-color --format=format:'%H' --tags=v*`
+
+if [ $COMMIT == $LASTTAG ]; then
+  echo "Tag already created, exiting..."
+  exit 0
+fi  
+
+DIA=`git log -n 1 --oneline --no-color --format=format:'%ai' $COMMIT`
+DIA=${DIA:0:10}
+HOJE=`date '+%Y-%m-%d'`
+CONTA=`git tag|grep $HOJE|wc -l`
+(( CONTA += 1 ))
+
+NEWTAG="vC$DIA-P$HOJE-$CONTA"
+echo "Creating tag..."
+git tag -a $NEWTAG -m "Code push #$CONTA from $HOJE" $COMMIT
+
+git push origin $NEWTAG
